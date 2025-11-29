@@ -1,0 +1,125 @@
+@import './Login.css';
+
+.auth-card code {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input {
+  padding-right: 165px !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.password-controls {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.password-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+  color: var(--primary-color);
+}
+
+.password-generate {
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: var(--transition);
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.password-generate:hover {
+  background: rgba(251, 146, 60, 0.2);
+  border-color: var(--primary-color);
+}
+
+.password-hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .password-input {
+    padding-right: 140px !important;
+  }
+
+  .password-controls {
+    right: 6px;
+    gap: 0.375rem;
+  }
+
+  .password-generate {
+    padding: 0.35rem 0.625rem;
+    font-size: 0.7rem;
+    height: 28px;
+  }
+
+  .password-toggle {
+    width: 28px;
+    height: 28px;
+    padding: 0.375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .password-input {
+    padding-right: 120px !important;
+  }
+
+  .password-controls {
+    right: 4px;
+    gap: 0.25rem;
+  }
+
+  .password-generate {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.65rem;
+    height: 26px;
+  }
+
+  .password-toggle {
+    width: 26px;
+    height: 26px;
+    font-size: 0.875rem;
+  }
+}

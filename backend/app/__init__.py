@@ -1,0 +1,96 @@
+"""
+MetroEval - Metropolia University of Applied Sciences
+AI-Powered Feedback & Peer Review System
+Application Factory
+"""
+import os
+from flask import Flask
+from flask_login import LoginManager
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    module="google.api_core._python_version_support",
+)
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+# Get project root (two levels up from this file)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def create_app(config_name: str = 'development'):
+    """Create and configure Flask application"""
+    
+    app = Flask(
+        __name__,
+        instance_path=os.path.join(project_root, 'instance'),
+        static_folder=os.path.join(project_root, 'static')
+    )
+    
+    # Load configuration
+    secret_key = os.environ.get('SECRET_KEY')
+    if not secret_key:
+        if config_name == 'production':
+            raise ValueError("SECRET_KEY environment variable must be set in production")
+        # Use default only in development/testing
+        secret_key = 'dev-secret-key-change-in-production'
+        import warnings
+        warnings.warn("Using default SECRET_KEY. Set SECRET_KEY environment variable in production!")
+    app.config['SECRET_KEY'] = secret_key
+    app.config['ENV'] = config_name
+    app.config['TESTING'] = config_name == 'testing'
+    
+    # Initialize extensions
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    
+    # Import and setup database
+    from app.core.database import init_db
+    
+    # Only initialize DB if not in testing mode
+    if os.environ.get('FLASK_ENV') != 'testing' and not app.config.get('TESTING'):
+        init_db()
+    
+    # Setup middleware
+    from app.middleware import setup_cors, register_error_handlers, setup_auth
+    setup_cors(app)
+    setup_auth(app, login_manager)
+    register_error_handlers(app)
+    
+    # Register blueprints
+    register_blueprints(app)
+    
+    # Context processor for templates
+    from flask_login import current_user
+    from app.config import DEFAULT_DEPARTMENT, DEPARTMENT_OPTIONS
+    
+    @app.context_processor
+    def inject_department_context():
+        """Inject department context into templates"""
+        current_dept = DEFAULT_DEPARTMENT
+        if current_user.is_authenticated and getattr(current_user, 'department', None):
+            current_dept = current_user.department
+        return {
+            'department_options': DEPARTMENT_OPTIONS,
+            'global_current_department': current_dept
+        }
+    
+    return app
+
+
+def register_blueprints(app):
+    """Register all route blueprints"""
+    # Register API v1 blueprint (contains all v1 routes)
+    from app.api.v1 import api_v1
+    app.register_blueprint(api_v1)
+    
+    # Register static routes
+    from app.api import static
+    app.register_blueprint(static.bp)
+

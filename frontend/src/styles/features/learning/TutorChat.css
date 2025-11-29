@@ -1,0 +1,311 @@
+.tutor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.tutor-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  background: rgba(18, 12, 9, 0.9);
+  border: 1px solid rgba(255, 138, 60, 0.15);
+}
+
+.tutor-hero__meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.tutor-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.tutor-chat-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 70vh;
+}
+
+.tutor-chat-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.tutor-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tutor-message {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tutor-message--user {
+  justify-content: flex-end;
+}
+
+.tutor-message--assistant .tutor-bubble {
+  border: 1px solid rgba(210, 106, 27, 0.15);
+}
+
+.tutor-bubble {
+  max-width: 70%;
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  line-height: 1.6;
+  background: rgba(21, 15, 11, 0.92);
+  color: var(--text-light);
+}
+
+.tutor-message--user .tutor-bubble {
+  background: var(--primary-color);
+  color: #150b07;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.tutor-avatar {
+  font-size: 1.4rem;
+}
+
+.tutor-input {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.tutor-input textarea {
+  flex: 1;
+  min-height: 70px;
+  max-height: 120px;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(12, 8, 6, 0.75);
+  color: var(--text-light);
+  border: 1px solid rgba(255, 138, 60, 0.2);
+  resize: none;
+}
+
+.tutor-input button {
+  min-width: 110px;
+}
+
+.tutor-prompts {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.prompt-chip {
+  border: 1px solid rgba(255, 138, 60, 0.25);
+  background: rgba(15, 10, 7, 0.9);
+  color: var(--text-light);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.prompt-chip:hover {
+  border-color: var(--primary-color);
+  background: rgba(255, 138, 60, 0.15);
+  color: #1b0e07;
+}
+
+.tutor-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tutor-context textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 138, 60, 0.2);
+  background: rgba(12, 8, 6, 0.75);
+  color: var(--text-light);
+  resize: vertical;
+}
+
+.tutor-context__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tutor-tips ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.8;
+}
+
+.tutor-empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem 0;
+}
+
+.tutor-empty-state .emoji {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .tutor-page {
+    gap: 1rem;
+  }
+
+  .tutor-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .tutor-hero__meta {
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+  }
+
+  .tutor-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tutor-chat-card {
+    min-height: 60vh;
+  }
+
+  .tutor-chat-card__header {
+    padding: 0.75rem 0;
+  }
+
+  .tutor-messages {
+    padding: 0.75rem 0;
+    gap: 0.75rem;
+  }
+
+  .tutor-bubble {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .tutor-avatar {
+    font-size: 1.25rem;
+  }
+
+  .tutor-input {
+    padding: 0.75rem 0;
+    gap: 0.5rem;
+  }
+
+  .tutor-input textarea {
+    min-height: 60px;
+    max-height: 100px;
+    padding: 0.625rem;
+    font-size: 0.9375rem;
+  }
+
+  .tutor-input button {
+    min-width: 90px;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .tutor-prompts {
+    padding-top: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .prompt-chips {
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  .prompt-chip {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8125rem;
+  }
+
+  .tutor-sidebar {
+    order: -1;
+  }
+
+  .tutor-context textarea {
+    min-height: 120px;
+    padding: 0.625rem;
+    font-size: 0.9375rem;
+  }
+
+  .tutor-empty-state {
+    padding: 1.5rem 0;
+  }
+
+  .tutor-empty-state .emoji {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tutor-hero {
+    padding: 1rem;
+  }
+
+  .tutor-bubble {
+    max-width: 90%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .tutor-input textarea {
+    min-height: 50px;
+    max-height: 90px;
+    font-size: 0.875rem;
+  }
+
+  .tutor-input button {
+    min-width: 80px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .tutor-context textarea {
+    min-height: 100px;
+    font-size: 0.875rem;
+  }
+
+  .prompt-chip {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
+

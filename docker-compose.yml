@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: afprs-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: afprs
+    networks:
+      - afprs-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: afprs-backend
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/afprs
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+    volumes:
+      - ./backend:/app/backend
+      - ./logs:/app/logs
+    depends_on:
+      - mongodb
+    networks:
+      - afprs-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: afprs-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - afprs-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  afprs-network:
+    driver: bridge
+
