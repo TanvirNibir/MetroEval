@@ -20,7 +20,7 @@ instance/
 .env.local
 
 # OS and editor files
-.cursor/
+
 *.swo
 *~
 .DS_Store
