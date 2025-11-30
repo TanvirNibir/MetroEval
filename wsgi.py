@@ -14,6 +14,22 @@ if backend_dir not in sys.path:
 if not os.environ.get('FLASK_ENV'):
     os.environ['FLASK_ENV'] = 'production'
 
+# Set SECRET_KEY if not set (temporary fallback - should be set via environment variables)
+if not os.environ.get('SECRET_KEY'):
+    os.environ['SECRET_KEY'] = '4e99c9c2686b81e8e17f44430b5838e914be9e4a6c9ae1593b30745848039d59'
+    import warnings
+    warnings.warn("SECRET_KEY not set in environment, using fallback. Please set it via Render dashboard.")
+
+# Set other critical env vars if not set
+if not os.environ.get('MONGODB_URI'):
+    os.environ['MONGODB_URI'] = 'mongodb+srv://tanvirnibir_db_user:Modern2004%40@cluster0.thxhvub.mongodb.net/afprs?retryWrites=true&w=majority&appName=Cluster0'
+
+if not os.environ.get('GOOGLE_API_KEY'):
+    os.environ['GOOGLE_API_KEY'] = 'AIzaSyD6BC7dutJero4--Zw5xw5ZmtQfAh6UIgo'
+
+if not os.environ.get('CORS_ALLOWED_ORIGINS'):
+    os.environ['CORS_ALLOWED_ORIGINS'] = 'https://metroeval-frontend.onrender.com'
+
 # Now import and create the app
 try:
     from app import create_app
