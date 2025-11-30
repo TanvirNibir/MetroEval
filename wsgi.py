@@ -14,7 +14,8 @@ if backend_dir not in sys.path:
 if not os.environ.get('FLASK_ENV'):
     os.environ['FLASK_ENV'] = 'production'
 
-# Set SECRET_KEY if not set (temporary fallback - should be set via environment variables)
+# IMPORTANT: Set environment variables BEFORE importing create_app
+# This ensures they're available when create_app checks for them
 if not os.environ.get('SECRET_KEY'):
     os.environ['SECRET_KEY'] = '4e99c9c2686b81e8e17f44430b5838e914be9e4a6c9ae1593b30745848039d59'
     import warnings
@@ -29,6 +30,13 @@ if not os.environ.get('GOOGLE_API_KEY'):
 
 if not os.environ.get('CORS_ALLOWED_ORIGINS'):
     os.environ['CORS_ALLOWED_ORIGINS'] = 'https://metroeval-frontend.onrender.com'
+
+# Debug: Print environment variables (without sensitive values)
+import sys
+print("=== Environment Variables Check ===", file=sys.stderr)
+print(f"SECRET_KEY: {'SET' if os.environ.get('SECRET_KEY') else 'NOT SET'}", file=sys.stderr)
+print(f"MONGODB_URI: {'SET' if os.environ.get('MONGODB_URI') else 'NOT SET'}", file=sys.stderr)
+print(f"FLASK_ENV: {os.environ.get('FLASK_ENV', 'NOT SET')}", file=sys.stderr)
 
 # Now import and create the app
 try:
