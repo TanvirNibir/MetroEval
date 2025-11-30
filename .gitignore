@@ -19,15 +19,11 @@ instance/
 .env
 .env.local
 
-# IDEs
-.vscode/
-.idea/
-.cursor/
+# OS and editor files
+.*/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 
@@ -51,5 +47,3 @@ yarn-error.log*
 .coverage
 htmlcov/
 
-# Git hooks
-.husky/
