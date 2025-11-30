@@ -37,12 +37,17 @@ def serve_static(path):
     return send_from_directory(static_dir, path)
 
 # React routes - serve index.html for client-side routing (must be last)
+# IMPORTANT: This catch-all route must NOT interfere with API routes
+# API routes are registered with /api/v1 prefix and should be handled first
 @bp.route('/', defaults={'path': ''})
 @bp.route('/<path:path>')
 def serve_react_app(path):
-    # Skip API routes (they're handled by specific routes above)
-    if path.startswith('api/'):
-        return jsonify({'error': 'Not found'}), 404
+    # Skip API routes (they're handled by API blueprints registered before this)
+    # The path here is relative to the blueprint, so 'api/' means the full path starts with /api/
+    if path.startswith('api/') or path == 'api':
+        # Let Flask's routing handle this - don't catch API routes
+        from flask import abort
+        abort(404)
     
     # Skip static files (they're handled by static folder or specific routes)
     if path.startswith('static/'):
