@@ -1,52 +1,32 @@
-# Exported from Render on 2025-11-30T11:47:45Z
-# Updated with fixes for build command and frontend service
-
+# Exported from Render on 2025-11-30T19:44:31Z
 version: "1"
-
 services:
-  # Backend Service
-  - type: web
-    name: MetroEval
-    runtime: python
-    repo: https://github.com/TanvirNibir/MetroEval
-    plan: free
-    region: frankfurt
-    rootDir: .
-    buildCommand: pip install --upgrade pip && (pip install -r requirements.txt || pip install -r backend/requirements.txt || pip install Flask==3.0.0 mongoengine==0.27.0 pymongo==4.6.0 Flask-Login==0.6.3 Flask-Limiter==3.5.0 Flask-WTF==1.2.1 Flask-Talisman==1.1.0 Werkzeug==3.0.1 "google-generativeai>=0.3.0" "scikit-learn>=1.4.0" "numpy>=1.26.0" "pandas>=2.1.0" python-dotenv==1.0.0 sentence-transformers==2.2.2 nltk==3.8.1 bleach==6.1.0 "urllib3<2.0" gunicorn)
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --capture-output --enable-stdio-inheritance wsgi:app
-    autoDeployTrigger: commit
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.0"
-      - key: PYTHONUNBUFFERED
-        value: 1
-      - key: PYTHONPATH
-        value: /opt/render/project/src:/opt/render/project/src/backend
-      - key: FLASK_ENV
-        value: production
-      - key: SECRET_KEY
-        sync: false
-      - key: MONGODB_URI
-        sync: false
-      - key: GOOGLE_API_KEY
-        sync: false
-      - key: CORS_ALLOWED_ORIGINS
-        sync: false
-
-  # Frontend Service
-  - type: web
-    name: MetroEval-Frontend
-    runtime: docker
-    repo: https://github.com/TanvirNibir/MetroEval
-    plan: free
-    region: frankfurt
-    dockerfilePath: ./Dockerfile.frontend
-    dockerContext: .
-    autoDeployTrigger: commit
-    envVars:
-      - key: VITE_API_URL
-        value: https://metroeval-m3gh.onrender.com/api
-      - key: REACT_APP_API_URL
-        value: https://metroeval-m3gh.onrender.com/api
-      - key: RENDER_SERVICE_NAME
-        value: MetroEval
+- type: web
+  name: MetroEval-Frontend
+  runtime: docker
+  repo: https://github.com/TanvirNibir/MetroEval
+  plan: starter
+  region: frankfurt
+  dockerContext: .
+  dockerfilePath: ./Dockerfile.frontend
+  autoDeployTrigger: commit
+- type: web
+  name: MetroEval
+  runtime: python
+  repo: https://github.com/TanvirNibir/MetroEval
+  plan: starter
+  envVars:
+  - key: MONGODB_URI
+    sync: false
+  - key: DATABASE_URL
+    sync: false
+  - key: SECRET_KEY
+    sync: false
+  - key: GEMINI_API_KEY
+    sync: false
+  region: frankfurt
+  buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+  startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --access-logfile
+    - --error-logfile - --log-level debug wsgi:app
+  autoDeployTrigger: commit
+  rootDir: .
