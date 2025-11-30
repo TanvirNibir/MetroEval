@@ -21,8 +21,11 @@ try:
 except Exception as e:
     # Log the error for debugging
     import traceback
-    print(f"Error creating app: {e}")
-    print(traceback.format_exc())
+    import sys
+    error_msg = f"Error creating app: {e}\n{traceback.format_exc()}"
+    print(error_msg, file=sys.stderr)
+    print(error_msg, file=sys.stdout)
+    # Re-raise to see the error in logs
     raise
 
 if __name__ == "__main__":

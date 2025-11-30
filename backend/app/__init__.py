@@ -58,11 +58,21 @@ def create_app(config_name: str = 'development'):
     login_manager.init_app(app)
     
     # Import and setup database
-    from app.core.database import init_db
-    
-    # Only initialize DB if not in testing mode
-    if os.environ.get('FLASK_ENV') != 'testing' and not app.config.get('TESTING'):
-        init_db()
+    try:
+        from app.core.database import init_db
+        
+        # Only initialize DB if not in testing mode
+        if os.environ.get('FLASK_ENV') != 'testing' and not app.config.get('TESTING'):
+            try:
+                init_db()
+            except Exception as db_error:
+                # Log but don't crash - app can start without DB connection
+                import warnings
+                warnings.warn(f"Database initialization failed: {db_error}. App will continue without database.")
+    except ImportError as import_error:
+        # If database module can't be imported, log but continue
+        import warnings
+        warnings.warn(f"Could not import database module: {import_error}. App will continue.")
     
     # Setup middleware
     from app.middleware import (
