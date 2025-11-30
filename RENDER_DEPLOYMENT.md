@@ -15,50 +15,68 @@ This guide will help you deploy the MetroEval application to Render.
 
 This is the easiest way to deploy everything at once.
 
-1. **Push your code to GitHub/GitLab/Bitbucket**
+**Important:** MongoDB cannot be provisioned via Blueprint. You must set up MongoDB **before** deploying (see MongoDB Setup section below).
+
+1. **Set up MongoDB first** (Required)
+   - See "MongoDB Setup" section below
+   - Get your MongoDB connection string ready
+   - You'll need this for the `MONGODB_URI` environment variable
+
+2. **Push your code to GitHub/GitLab/Bitbucket**
    ```bash
    git add .
    git commit -m "Add Render deployment configuration"
    git push origin main
    ```
 
-2. **Go to Render Dashboard**
+3. **Go to Render Dashboard**
    - Visit [Render Dashboard](https://dashboard.render.com)
    - Click "New +" → "Blueprint"
 
-3. **Connect your repository**
+4. **Connect your repository**
    - Connect your Git repository
    - Render will detect the `render.yaml` file
 
-4. **Configure Environment Variables**
+5. **Configure Environment Variables**
    Before deploying, you'll need to set these environment variables in the Render dashboard:
 
    **For Backend Service:**
-   - `MONGODB_URI`: Your MongoDB connection string
+   - `MONGODB_URI`: Your MongoDB connection string (from step 1)
      - Format: `mongodb://username:password@host:port/database?authSource=admin`
-     - If using Render MongoDB: Get the connection string from your MongoDB service
+     - Example: `mongodb+srv://user:pass@cluster.mongodb.net/afprs?retryWrites=true&w=majority`
    - `GOOGLE_API_KEY`: Your Google Gemini API key
    - `CORS_ALLOWED_ORIGINS`: Your frontend URL (e.g., `https://metroeval-frontend.onrender.com`)
    - `SECRET_KEY`: Will be auto-generated, but you can set a custom one
 
    **For Frontend Service:**
    - `REACT_APP_API_URL`: Your backend URL (e.g., `https://metroeval-backend.onrender.com`)
+     - **Note:** You'll need to set this AFTER the backend is deployed and you have its URL
 
-5. **Deploy**
+6. **Deploy**
    - Click "Apply" in the Blueprint
-   - Render will create all services and deploy them
+   - Render will create backend and frontend services
+   - After backend deploys, update frontend's `REACT_APP_API_URL` with the backend URL
+   - Redeploy frontend if needed
 
 ### Option 2: Manual Deployment
 
 If you prefer to set up services manually:
 
-#### Step 1: Deploy MongoDB (if using Render's MongoDB)
+#### Step 1: Set up MongoDB
 
-1. Go to Render Dashboard → "New +" → "PostgreSQL" (or use external MongoDB)
-2. Or use Render's MongoDB service:
-   - "New +" → "MongoDB"
-   - Choose plan (Starter is fine for development)
-   - Note the connection string
+**Note:** Render does not currently support MongoDB as a managed service in their dashboard. You need to use an external MongoDB service.
+
+**Recommended: MongoDB Atlas (Free tier available)**
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a free account and cluster
+3. Create a database user
+4. Whitelist IP addresses (use `0.0.0.0/0` for development, or Render's IP ranges for production)
+5. Get the connection string from Atlas dashboard
+6. Format: `mongodb+srv://username:password@cluster.mongodb.net/afprs?retryWrites=true&w=majority`
+
+**Alternative: Self-hosted MongoDB**
+- Use any MongoDB instance you have access to
+- Connection string format: `mongodb://username:password@host:port/database?authSource=admin`
 
 #### Step 2: Deploy Backend
 
@@ -137,13 +155,9 @@ If you prefer to set up services manually:
 
 ## MongoDB Setup
 
-### Option 1: Render MongoDB (Recommended for simplicity)
+**Important:** Render does not provide MongoDB as a managed service. You must use an external MongoDB service.
 
-1. Create MongoDB service in Render
-2. Get the connection string from the service dashboard
-3. Use it as `MONGODB_URI` in backend environment variables
-
-### Option 2: MongoDB Atlas (Recommended for production)
+### Option 1: MongoDB Atlas (Recommended - Free tier available)
 
 1. Create account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 2. Create a cluster (free tier available)
@@ -151,11 +165,16 @@ If you prefer to set up services manually:
 4. Whitelist Render's IP addresses (or use 0.0.0.0/0 for development)
 5. Get connection string and use as `MONGODB_URI`
 
-### Option 3: External MongoDB
+### Option 2: External MongoDB
 
 Use any MongoDB instance you have access to. Format the connection string as:
 ```
 mongodb://username:password@host:port/database?authSource=admin
+```
+
+**For MongoDB Atlas (SRV connection string):**
+```
+mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
 ```
 
 ## Post-Deployment Checklist

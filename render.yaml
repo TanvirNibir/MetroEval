@@ -39,12 +39,9 @@ services:
       - key: RENDER_SERVICE_NAME
         value: metroeval-backend
 
-  # MongoDB Database (Optional - you can use Render's MongoDB or external)
-  - type: psmdb
-    name: metroeval-mongodb
-    plan: starter
-    region: oregon
-    databaseName: afprs
-    databaseUser: admin
-    # Password will be auto-generated
+  # Note: MongoDB cannot be provisioned via Blueprint
+  # You need to set up MongoDB separately:
+  # Option 1: Use MongoDB Atlas (recommended) - https://www.mongodb.com/cloud/atlas
+  # Option 2: Create MongoDB manually in Render dashboard (if available)
+  # Then set MONGODB_URI environment variable in the backend service
 
