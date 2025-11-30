@@ -1,12 +1,20 @@
+# Exported from Render on 2025-11-30T11:47:45Z
+# Updated with fixes for build command and frontend service
+
+version: "1"
+
 services:
   # Backend Service
   - type: web
     name: MetroEval
-    env: python
-    region: oregon
-    # Using free tier (services sleep after 15 min of inactivity)
+    runtime: python
+    repo: https://github.com/TanvirNibir/MetroEval
+    plan: free
+    region: frankfurt
+    rootDir: .
     buildCommand: pip install --upgrade pip && pip install Flask==3.0.0 mongoengine==0.27.0 pymongo==4.6.0 Flask-Login==0.6.3 Flask-Limiter==3.5.0 Flask-WTF==1.2.1 Flask-Talisman==1.1.0 Werkzeug==3.0.1 "google-generativeai>=0.3.0" scikit-learn==1.3.2 numpy==1.24.3 pandas==2.1.3 python-dotenv==1.0.0 sentence-transformers==2.2.2 nltk==3.8.1 bleach==6.1.0 "urllib3<2.0" gunicorn
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --access-logfile - --error-logfile - backend.app.wsgi:app
+    autoDeployTrigger: commit
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -17,31 +25,26 @@ services:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
-        generateValue: true
+        sync: false
       - key: MONGODB_URI
-        sync: false  # Set this in Render dashboard - use format: mongodb://user:pass@host:port/db?authSource=admin
+        sync: false
       - key: GOOGLE_API_KEY
-        sync: false  # Set this in Render dashboard
+        sync: false
       - key: CORS_ALLOWED_ORIGINS
-        sync: false  # Set this to your frontend URL (e.g., https://metroeval-frontend.onrender.com)
+        sync: false
 
   # Frontend Service
   - type: web
-    name: metroeval-frontend
-    env: docker
-    region: oregon
-    # Using free tier (services sleep after 15 min of inactivity)
+    name: MetroEval-Frontend
+    runtime: docker
+    repo: https://github.com/TanvirNibir/MetroEval
+    plan: free
+    region: frankfurt
     dockerfilePath: ./Dockerfile.frontend
     dockerContext: .
+    autoDeployTrigger: commit
     envVars:
       - key: REACT_APP_API_URL
-        sync: false  # Set this to your backend URL (e.g., https://metroeval-backend.onrender.com)
+        sync: false
       - key: RENDER_SERVICE_NAME
-        value: metroeval-backend
-
-  # Note: MongoDB cannot be provisioned via Blueprint
-  # You need to set up MongoDB separately:
-  # Option 1: Use MongoDB Atlas (recommended) - https://www.mongodb.com/cloud/atlas
-  # Option 2: Create MongoDB manually in Render dashboard (if available)
-  # Then set MONGODB_URI environment variable in the backend service
-
+        value: MetroEval
