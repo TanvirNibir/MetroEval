@@ -13,20 +13,28 @@ def get_db_config():
 
 def init_db():
     """Initialize database connection and create default data"""
-    config = get_db_config()
-    
-    if config['uri']:
-        uri = config['uri']
-    else:
-        uri = f'mongodb://{config["host"]}:{config["port"]}/{config["db"]}'
-    
-    # Connect with uuidRepresentation to avoid deprecation warnings
-    connect(host=uri, alias='default', uuidRepresentation='standard')
-    
-    from app.utils.db_utils import init_db as init_default_data
-    init_default_data()
-    
-    return True
+    try:
+        config = get_db_config()
+        
+        if config['uri']:
+            uri = config['uri']
+        else:
+            uri = f'mongodb://{config["host"]}:{config["port"]}/{config["db"]}'
+        
+        # Connect with uuidRepresentation to avoid deprecation warnings
+        connect(host=uri, alias='default', uuidRepresentation='standard')
+        
+        from app.utils.db_utils import init_db as init_default_data
+        init_default_data()
+        
+        return True
+    except Exception as e:
+        # Log error but don't crash the app
+        import traceback
+        print(f"Warning: Database initialization failed: {e}")
+        print(traceback.format_exc())
+        # Return False but don't raise - allow app to start
+        return False
 
 def get_db():
     """Get database connection (for consistency with other ORMs)"""

@@ -10,10 +10,20 @@ backend_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend'
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-# Now import and create the app
-from app import create_app
+# Set FLASK_ENV to production if not set
+if not os.environ.get('FLASK_ENV'):
+    os.environ['FLASK_ENV'] = 'production'
 
-app = create_app('production')
+# Now import and create the app
+try:
+    from app import create_app
+    app = create_app('production')
+except Exception as e:
+    # Log the error for debugging
+    import traceback
+    print(f"Error creating app: {e}")
+    print(traceback.format_exc())
+    raise
 
 if __name__ == "__main__":
     app.run()
