@@ -21,7 +21,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: PYTHONPATH
-        value: /opt/render/project/src
+        value: /opt/render/project/src:/opt/render/project/src/backend
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
