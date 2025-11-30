@@ -4,7 +4,8 @@ from flask_login import login_required, current_user
 from app.models import User
 from app.utils.auth_utils import normalize_email, is_metropolia_email, hash_password
 from app.utils.response_utils import success_response, error_response
-from app.utils.validation import validate_string_length, validate_email
+from app.utils.validation import validate_string_length, validate_email, validate_password
+from app.utils.security_utils import sanitize_input
 from app.config import DEFAULT_DEPARTMENT, DEPARTMENT_OPTIONS
 import base64
 
@@ -41,9 +42,11 @@ def update_user_profile():
         data = request.json or {}
         
         if 'name' in data:
-            if not validate_string_length(data['name'], min_length=2, max_length=100):
+            # Sanitize name input
+            sanitized_name = sanitize_input(data['name'].strip())
+            if not validate_string_length(sanitized_name, min_length=2, max_length=100):
                 return error_response('Name must be between 2 and 100 characters', 400)
-            current_user.name = data['name'].strip()
+            current_user.name = sanitized_name
         
         if 'email' in data:
             new_email = normalize_email(data['email'])
@@ -57,11 +60,14 @@ def update_user_profile():
             current_user.email = new_email
         
         if 'password' in data and data['password']:
-            if not validate_string_length(data['password'], min_length=6):
-                return error_response('Password must be at least 6 characters', 400)
+            # Validate password strength
+            is_valid, password_error = validate_password(data['password'])
+            if not is_valid:
+                return error_response(password_error, 400)
             try:
                 password_hash = hash_password(data['password'])
             except ValueError as e:
+                from flask import current_app
                 current_app.logger.error(f"Failed to hash password: {str(e)}")
                 return error_response('Failed to update password. Please try again.', 500)
             current_user.password_hash = password_hash

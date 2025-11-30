@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run --root . --config vite.config.js ../tests/frontend",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
   },

@@ -46,6 +46,13 @@ def create_app(config_name: str = 'development'):
     app.config['ENV'] = config_name
     app.config['TESTING'] = config_name == 'testing'
     
+    # Security configuration
+    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max request size
+    app.config['SESSION_COOKIE_SECURE'] = config_name == 'production'  # HTTPS only in production
+    app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent XSS
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+    app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+    
     # Initialize extensions
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -58,9 +65,14 @@ def create_app(config_name: str = 'development'):
         init_db()
     
     # Setup middleware
-    from app.middleware import setup_cors, register_error_handlers, setup_auth
+    from app.middleware import (
+        setup_cors, register_error_handlers, setup_auth,
+        setup_rate_limiting, setup_security_headers
+    )
     setup_cors(app)
     setup_auth(app, login_manager)
+    setup_rate_limiting(app)
+    setup_security_headers(app)
     register_error_handlers(app)
     
     # Register blueprints

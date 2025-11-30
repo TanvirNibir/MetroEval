@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import '../styles/components/TimeTracking.css'
 
 const TimeTracking = () => {
   const [tracking, setTracking] = useState(null)
@@ -130,34 +131,22 @@ const TimeTracking = () => {
   }
 
   return (
-    <div className="card" style={{
-      background: 'var(--glass-bg)',
-      backdropFilter: 'blur(20px)',
-      border: '1px solid var(--glass-border)',
-      padding: '1.5rem',
-    }}>
-      <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="card time-tracking">
+      <h3 className="time-tracking__title">
         ⏱️ Time Tracking
       </h3>
       
       {tracking ? (
         <div>
-          <div style={{
-            padding: '1rem',
-            background: 'rgba(16, 185, 129, 0.2)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '1rem',
-            textAlign: 'center',
-          }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏳</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+          <div className="time-tracking__active">
+            <div className="time-tracking__active-icon">⏳</div>
+            <div className="time-tracking__active-label">
               Tracking Active
             </div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>
+            <div className="time-tracking__active-time">
               {formatTime(elapsedSeconds)}
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+            <div className="time-tracking__active-start">
               Started: {new Date(tracking.start_time || Date.now()).toLocaleTimeString()}
             </div>
           </div>
@@ -174,8 +163,7 @@ const TimeTracking = () => {
           <button
             onClick={() => startTracking('submission')}
             disabled={loading}
-            className="btn btn-primary btn-block"
-            style={{ marginBottom: '0.5rem' }}
+            className="btn btn-primary btn-block time-tracking__button"
           >
             {loading ? 'Starting...' : '▶️ Start Tracking'}
           </button>
@@ -183,53 +171,30 @@ const TimeTracking = () => {
       )}
 
       {stats && (
-        <div style={{
-          marginTop: '1.5rem',
-          paddingTop: '1.5rem',
-          borderTop: '1px solid var(--border-color)',
-        }}>
-          <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Statistics</h4>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-            gap: '0.75rem',
-          }}>
-            <div style={{
-              padding: '0.75rem',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: 'var(--radius-sm)',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+        <div className="time-tracking__stats">
+          <h4 className="time-tracking__stats-title">Statistics</h4>
+          <div className="time-tracking__stats-grid">
+            <div className="time-tracking__stat-item">
+              <div className="time-tracking__stat-label">
                 Total Time
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
+              <div className="time-tracking__stat-value">
                 {formatTime(stats.total_seconds || 0)}
               </div>
             </div>
-            <div style={{
-              padding: '0.75rem',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: 'var(--radius-sm)',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+            <div className="time-tracking__stat-item">
+              <div className="time-tracking__stat-label">
                 Sessions
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
+              <div className="time-tracking__stat-value">
                 {stats.session_count || 0}
               </div>
             </div>
-            <div style={{
-              padding: '0.75rem',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: 'var(--radius-sm)',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+            <div className="time-tracking__stat-item">
+              <div className="time-tracking__stat-label">
                 Average
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
+              <div className="time-tracking__stat-value">
                 {formatTime(Math.round(stats.average_seconds || 0))}
               </div>
             </div>

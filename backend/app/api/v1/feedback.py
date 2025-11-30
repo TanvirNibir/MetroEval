@@ -10,6 +10,7 @@ from app.services import ai_service, peer_matching_service
 from app.exceptions.api_exceptions import ValidationError
 
 from . import api_v1
+from app.middleware.security_middleware import limiter
 
 bp = api_v1
 
@@ -22,6 +23,7 @@ def feedback_page() -> Any:
 
 @bp.route('/generate-feedback', methods=['POST'])
 @login_required
+@limiter.limit("10 per hour")  # Limit AI feedback generation to prevent abuse
 def generate_feedback() -> Dict[str, Any]:
     """Generate fresh feedback for a submission"""
     try:

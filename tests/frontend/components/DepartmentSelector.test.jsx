@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import DepartmentSelector from '../../../frontend/src/features/dashboard/components/DepartmentSelector'
@@ -21,9 +21,14 @@ vi.mock('../../../frontend/src/context/AuthContext', async () => {
 const departments = [
   { value: 'General Studies', label: 'General Studies' },
   { value: 'Engineering', label: 'Engineering & Computer Science' },
+  { value: 'Business', label: 'Business & Economics' },
 ]
 
 describe('DepartmentSelector', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('renders department selector for teachers', () => {
     mockUseAuth.user = { role: 'teacher' }
     const handleChange = vi.fn()
@@ -63,6 +68,7 @@ describe('DepartmentSelector', () => {
   })
 
   it('calls onDepartmentChange when teacher selects department', async () => {
+    const user = userEvent.setup()
     mockUseAuth.user = { role: 'teacher' }
     const handleChange = vi.fn()
 
@@ -78,9 +84,48 @@ describe('DepartmentSelector', () => {
     )
 
     const select = screen.getByLabelText(/Choose department/i)
-    await userEvent.selectOptions(select, 'Engineering')
+    await user.selectOptions(select, 'Engineering')
 
     expect(handleChange).toHaveBeenCalledWith('Engineering')
   })
-})
 
+  it('displays all department options for teachers', () => {
+    mockUseAuth.user = { role: 'teacher' }
+    const handleChange = vi.fn()
+
+    render(
+      <AuthProvider>
+        <DepartmentSelector
+          currentDepartment="General Studies"
+          departments={departments}
+          onDepartmentChange={handleChange}
+          userRole="teacher"
+        />
+      </AuthProvider>
+    )
+
+    // Check that all departments are available
+    departments.forEach(dept => {
+      expect(screen.getByText(dept.label)).toBeInTheDocument()
+    })
+  })
+
+  it('handles empty departments list', () => {
+    mockUseAuth.user = { role: 'teacher' }
+    const handleChange = vi.fn()
+
+    render(
+      <AuthProvider>
+        <DepartmentSelector
+          currentDepartment="General Studies"
+          departments={[]}
+          onDepartmentChange={handleChange}
+          userRole="teacher"
+        />
+      </AuthProvider>
+    )
+
+    // Should still render without crashing
+    expect(screen.getByText(/Department/i)).toBeInTheDocument()
+  })
+})

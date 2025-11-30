@@ -56,34 +56,7 @@ const Layout = ({ children }) => {
       {/* Navbar Toggle Button */}
       <button
         onClick={toggleNavbar}
-        className="navbar-toggle"
-        style={{
-          position: 'fixed',
-          top: navbarVisible ? '80px' : '10px',
-          right: '20px',
-          zIndex: 101, /* Just above navbar, but below modals */
-          background: 'rgba(251, 146, 60, 0.9)',
-          border: '1px solid rgba(251, 146, 60, 0.5)',
-          borderRadius: '50%',
-          width: '40px',
-          height: '40px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          fontSize: '1.2rem',
-          color: 'white',
-          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4)',
-          transition: 'all 0.3s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)'
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(251, 146, 60, 0.6)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)'
-          e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.4)'
-        }}
+        className={`navbar-toggle ${!navbarVisible ? 'navbar-toggle--hidden' : ''}`}
         title={navbarVisible ? 'Hide Navigation' : 'Show Navigation'}
       >
         {navbarVisible ? '⬆️' : '⬇️'}

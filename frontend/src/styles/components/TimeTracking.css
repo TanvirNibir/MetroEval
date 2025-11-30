@@ -1,0 +1,84 @@
+.time-tracking {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  padding: 1.5rem;
+}
+
+.time-tracking__title {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-tracking__active {
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.time-tracking__active-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.time-tracking__active-label {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.time-tracking__active-time {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.time-tracking__active-start {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.time-tracking__stats {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.time-tracking__stats-title {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.time-tracking__stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.time-tracking__stat-item {
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.time-tracking__stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.time-tracking__stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.time-tracking__button {
+  margin-bottom: 0.5rem;
+}
+

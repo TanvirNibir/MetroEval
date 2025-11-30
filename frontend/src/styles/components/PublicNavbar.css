@@ -110,6 +110,10 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
+.mobile-menu--open {
+  display: flex;
+}
+
 .mobile-menu-link {
   text-decoration: none;
   color: var(--text-color);
@@ -162,6 +166,10 @@
 
   .mobile-menu {
     padding: 1rem;
+  }
+
+  .mobile-menu--open {
+    display: flex !important;
   }
 
   .mobile-menu-link {

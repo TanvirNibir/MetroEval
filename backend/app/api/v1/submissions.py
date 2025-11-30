@@ -89,18 +89,25 @@ def submit_assignment() -> Dict[str, Any]:
             })
         
         # Validate and sanitize assignment title
-        assignment_title = data.get('title', 'Untitled Assignment').strip()
+        from app.utils.security_utils import sanitize_input
+        assignment_title = sanitize_input(data.get('title', 'Untitled Assignment').strip())
         if not assignment_title:
             assignment_title = 'Untitled Assignment'
         if len(assignment_title) > 200:  # Match model max_length
             assignment_title = assignment_title[:200]
+        
+        # Sanitize task description (allow basic HTML for markdown)
+        task_description = sanitize_input(
+            (data.get('task_description', '') or '').strip(),
+            allow_html=True
+        )
         
         submission = Submission(
             user_id=current_user,
             course_id=course_obj,
             assignment_title=assignment_title,
             content=combined_content or 'No content provided',
-            task_description=(data.get('task_description', '') or '').strip(),
+            task_description=task_description,
             submission_type=data.get('type', 'code') or 'code',
             status='submitted',
             files=submission_files

@@ -83,6 +83,10 @@ def submit_peer_review(review_id: str) -> Dict[str, Any]:
         if not feedback_text.strip():
             return error_response('Feedback text is required', 400)
         
+        # Sanitize feedback text (allow HTML for markdown formatting)
+        from app.utils.security_utils import sanitize_input
+        feedback_text = sanitize_input(feedback_text.strip(), allow_html=True)
+        
         # Validate minimum feedback length
         if len(feedback_text.strip()) < 10:
             return error_response('Feedback must be at least 10 characters long', 400)

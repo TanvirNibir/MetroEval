@@ -6,6 +6,7 @@ from typing import Dict, List, Any
 from app.utils.response_utils import success_response, error_response
 from app.services.ai_service import ai_service
 from app.config import MAX_FILE_SIZE
+from app.middleware.security_middleware import limiter
 from . import api_v1
 
 bp = api_v1
@@ -19,6 +20,7 @@ MAX_HISTORY_ENTRY_LENGTH = 1000
 
 @bp.route('/tutor/chat', methods=['POST'])
 @login_required
+@limiter.limit("20 per hour")  # Limit AI tutor requests
 def tutor_chat() -> Dict[str, Any]:
     """Handle AI tutor chat messages"""
     try:

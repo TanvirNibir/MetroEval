@@ -45,7 +45,7 @@ const PublicNavbar = () => {
       </button>
 
       {/* Mobile Menu */}
-      <div className="mobile-menu" style={{ display: isMenuOpen ? 'flex' : 'none' }}>
+      <div className={`mobile-menu ${isMenuOpen ? 'mobile-menu--open' : ''}`}>
         <Link
           to="/"
           onClick={() => setIsMenuOpen(false)}

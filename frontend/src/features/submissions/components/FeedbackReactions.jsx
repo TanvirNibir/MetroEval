@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import api from '../../../services/api'
+import '../../../styles/features/submissions/FeedbackReactions.css'
 
 const FeedbackReactions = ({ feedbackId }) => {
   const [reactions, setReactions] = useState({ counts: {}, user_reaction: null })
@@ -41,13 +42,7 @@ const FeedbackReactions = ({ feedbackId }) => {
   ]
 
   return (
-    <div style={{
-      display: 'flex',
-      gap: '0.5rem',
-      marginTop: '1rem',
-      paddingTop: '1rem',
-      borderTop: '1px solid var(--border-color)',
-    }}>
+    <div className="feedback-reactions">
       {reactionTypes.map((reaction) => {
         const count = reactions.counts[reaction.type] || 0
         const isActive = reactions.user_reaction === reaction.type
@@ -57,42 +52,12 @@ const FeedbackReactions = ({ feedbackId }) => {
             key={reaction.type}
             onClick={() => handleReaction(reaction.type)}
             disabled={loading}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              padding: '0.5rem 0.75rem',
-              background: isActive 
-                ? 'rgba(251, 146, 60, 0.2)' 
-                : 'rgba(0, 0, 0, 0.3)',
-              border: `1px solid ${isActive ? 'var(--primary-color)' : 'var(--border-color)'}`,
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--text-color)',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.85rem',
-              transition: 'var(--transition)',
-            }}
-            onMouseEnter={(e) => {
-              if (!loading && !isActive) {
-                e.currentTarget.style.background = 'rgba(251, 146, 60, 0.1)'
-                e.currentTarget.style.borderColor = 'var(--primary-color)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!loading && !isActive) {
-                e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)'
-                e.currentTarget.style.borderColor = 'var(--border-color)'
-              }
-            }}
+            className={`feedback-reactions__button ${isActive ? 'feedback-reactions__button--active' : ''}`}
           >
             <span>{reaction.icon}</span>
             <span>{reaction.label}</span>
             {count > 0 && (
-              <span style={{
-                marginLeft: '0.25rem',
-                fontSize: '0.75rem',
-                opacity: 0.7,
-              }}>
+              <span className="feedback-reactions__count">
                 {count}
               </span>
             )}

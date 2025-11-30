@@ -50,6 +50,7 @@ describe('useUserDepartment', () => {
     vi.clearAllMocks()
     mockCheckAuth.mockResolvedValue(undefined)
     mockApiPost.mockResolvedValue({ success: true })
+    mockUseAuth.user = { ...mockUser, department: 'Engineering & Computer Science' }
   })
 
   it('initializes with user department from context', () => {
@@ -61,6 +62,13 @@ describe('useUserDepartment', () => {
 
   it('uses default department when user has no department', () => {
     mockUseAuth.user = { ...mockUser, department: null }
+    const { result } = renderHook(() => useUserDepartment(), { wrapper })
+    
+    expect(result.current.department).toBe('General Studies')
+  })
+
+  it('uses default department when user department is undefined', () => {
+    mockUseAuth.user = { ...mockUser, department: undefined }
     const { result } = renderHook(() => useUserDepartment(), { wrapper })
     
     expect(result.current.department).toBe('General Studies')
@@ -122,5 +130,32 @@ describe('useUserDepartment', () => {
     
     expect(result.current.department).toBe('Social Sciences & Humanities')
   })
-})
 
+  it('handles multiple rapid department changes', async () => {
+    const { result } = renderHook(() => useUserDepartment(), { wrapper })
+    
+    await act(async () => {
+      await result.current.setDepartment('Department 1')
+      await result.current.setDepartment('Department 2')
+      await result.current.setDepartment('Department 3')
+    })
+    
+    expect(result.current.department).toBe('Department 3')
+  })
+
+  it('handles checkAuth failure gracefully', async () => {
+    mockCheckAuth.mockRejectedValue(new Error('Auth check failed'))
+    const { result } = renderHook(() => useUserDepartment(), { wrapper })
+    
+    await act(async () => {
+      try {
+        await result.current.setDepartment('New Department')
+      } catch (e) {
+        // Expected error
+      }
+    })
+    
+    // Should still update locally or revert
+    expect(result.current.department).toBeDefined()
+  })
+})

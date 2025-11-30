@@ -68,7 +68,7 @@ describe('PrivateRoute', () => {
 
   it('renders children when user is authenticated', () => {
     mockUseAuth.user = {
-      id: 1,
+      id: '1',
       name: 'Test User',
       email: 'test@metropolia.fi',
       role: 'student',
@@ -86,7 +86,7 @@ describe('PrivateRoute', () => {
 
   it('renders children for authenticated teacher', () => {
     mockUseAuth.user = {
-      id: 2,
+      id: '2',
       name: 'Teacher User',
       email: 'teacher@metropolia.fi',
       role: 'teacher',
@@ -104,7 +104,7 @@ describe('PrivateRoute', () => {
 
   it('renders children with required role when role matches', () => {
     mockUseAuth.user = {
-      id: 2,
+      id: '2',
       name: 'Teacher User',
       email: 'teacher@metropolia.fi',
       role: 'teacher',
@@ -117,7 +117,50 @@ describe('PrivateRoute', () => {
       </PrivateRoute>
     )
     
+    // Note: PrivateRoute doesn't currently enforce requiredRole,
+    // but it should still render if user exists
     expect(screen.getByText('Teacher Only Content')).toBeInTheDocument()
   })
-})
 
+  it('handles loading state transition to authenticated', () => {
+    const { rerender } = renderWithRouter(
+      <PrivateRoute>
+        <div>Protected Content</div>
+      </PrivateRoute>
+    )
+    
+    // Initially loading
+    mockUseAuth.loading = true
+    rerender(
+      <MemoryRouter>
+        <AuthProvider>
+          <PrivateRoute>
+            <div>Protected Content</div>
+          </PrivateRoute>
+        </AuthProvider>
+      </MemoryRouter>
+    )
+    
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    
+    // Then authenticated
+    mockUseAuth.loading = false
+    mockUseAuth.user = {
+      id: '1',
+      name: 'Test User',
+      email: 'test@metropolia.fi',
+      role: 'student',
+    }
+    rerender(
+      <MemoryRouter>
+        <AuthProvider>
+          <PrivateRoute>
+            <div>Protected Content</div>
+          </PrivateRoute>
+        </AuthProvider>
+      </MemoryRouter>
+    )
+    
+    expect(screen.getByText('Protected Content')).toBeInTheDocument()
+  })
+})

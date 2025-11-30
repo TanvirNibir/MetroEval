@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import './ProgressOverview.css'
+import '../styles/components/ProgressOverview.css'
 
 const ProgressOverview = ({ submissions }) => {
   const [progress, setProgress] = useState({

@@ -1,6 +1,7 @@
 """Validation utility functions"""
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 from app.exceptions.api_exceptions import ValidationError
+from app.utils.security_utils import validate_password_strength
 
 
 def validate_required_fields(data: Dict[str, Any], required_fields: list) -> None:
@@ -29,4 +30,14 @@ def validate_string_length(value: str, min_length: int = 1, max_length: Optional
     if max_length and len(value) > max_length:
         return False
     return True
+
+
+def validate_password(password: str) -> Tuple[bool, Optional[str]]:
+    """
+    Validate password strength.
+    
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    return validate_password_strength(password)
 

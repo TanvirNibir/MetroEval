@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import '../styles/components/QuickStats.css'
 
 const QuickStats = ({ stats }) => {
   const [animatedStats, setAnimatedStats] = useState({
@@ -46,92 +47,41 @@ const QuickStats = ({ stats }) => {
       label: 'Submissions',
       value: animatedStats.submissions,
       icon: '📝',
-      color: '#6366f1',
-      gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+      colorClass: 'indigo',
     },
     {
       label: 'Feedbacks',
       value: animatedStats.feedbacks,
       icon: '💬',
-      color: '#10b981',
-      gradient: 'linear-gradient(135deg, #10b981, #14b8a6)',
+      colorClass: 'green',
     },
     {
       label: 'Peer Reviews',
       value: animatedStats.peerReviews,
       icon: '👥',
-      color: '#f59e0b',
-      gradient: 'linear-gradient(135deg, #f59e0b, #fb923c)',
+      colorClass: 'orange',
     },
   ]
 
   return (
-    <div style={{
-      display: 'flex',
-      gap: '1rem',
-      flexWrap: 'wrap',
-    }}>
+    <div className="quick-stats">
       {statItems.map((stat, index) => (
         <div
           key={stat.label}
+          className={`quick-stats__item quick-stats__item--${stat.colorClass}`}
           style={{
-            background: 'var(--glass-bg)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1.25rem 1.5rem',
-            border: '1px solid var(--glass-border)',
-            boxShadow: 'var(--shadow-md)',
-            minWidth: '140px',
-            transition: 'var(--transition)',
             animation: `fadeIn 0.5s ease ${index * 0.1}s both`,
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)'
-            e.currentTarget.style.boxShadow = `var(--shadow-xl), 0 0 20px ${stat.color}40`
-            e.currentTarget.style.borderColor = stat.color
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0) scale(1)'
-            e.currentTarget.style.boxShadow = 'var(--shadow-md)'
-            e.currentTarget.style.borderColor = 'var(--glass-border)'
-          }}
         >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-          }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: 'var(--radius-md)',
-              background: stat.gradient,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.5rem',
-              boxShadow: `0 0 15px ${stat.color}40`,
-              flexShrink: 0,
-            }}>
+          <div className="quick-stats__content">
+            <div className={`quick-stats__icon quick-stats__icon--${stat.colorClass}`}>
               {stat.icon}
             </div>
             <div>
-              <div style={{
-                fontSize: '1.75rem',
-                fontWeight: '800',
-                color: 'var(--text-color)',
-                lineHeight: '1',
-                marginBottom: '0.25rem',
-              }}>
+              <div className="quick-stats__value">
                 {stat.value}
               </div>
-              <div style={{
-                fontSize: '0.85rem',
-                color: 'var(--text-muted)',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}>
+              <div className="quick-stats__label">
                 {stat.label}
               </div>
             </div>

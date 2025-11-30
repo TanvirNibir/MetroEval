@@ -1,13 +1,14 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import '../styles/components/PrivateRoute.css'
 
 const PrivateRoute = ({ children, requiredRole }) => {
   const { user, loading } = useAuth()
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <div className="private-route-loading">
         <div className="loading">
           <div className="spinner"></div>
           <p>Loading...</p>

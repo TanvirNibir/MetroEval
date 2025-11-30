@@ -5,26 +5,31 @@ from werkzeug.security import check_password_hash
 from app.models import User
 from app.utils.auth_utils import normalize_email, is_metropolia_email, hash_password
 from app.utils.response_utils import success_response, error_response
-from app.utils.validation import validate_required_fields, validate_string_length
+from app.utils.validation import validate_required_fields, validate_string_length, validate_password
+from app.utils.security_utils import log_security_event, sanitize_input
 from app.config import DEFAULT_DEPARTMENT
 from app.exceptions.api_exceptions import ValidationError
 
 from . import api_v1
+from app.middleware.security_middleware import limiter
 
 bp = api_v1  # Use the v1 API blueprint
 
 @bp.route('/login', methods=['POST'])
+@limiter.limit("5 per 15 minutes")  # 5 login attempts per 15 minutes per IP
 def login():
     """Handle login form submission"""
     try:
         data = request.json if request.is_json else request.form.to_dict()
         email = normalize_email(data.get('email'))
         password = data.get('password')
+        ip_address = request.remote_addr or request.headers.get('X-Forwarded-For', 'unknown')
         
         if not email or not password:
             return error_response('Email and password are required', 400)
         
         if not is_metropolia_email(email):
+            log_security_event('invalid_email_domain', {'email': email}, ip_address=ip_address)
             return error_response('Only @metropolia.fi emails can sign in', 403)
         
         user = User.objects(email__iexact=email).first()
@@ -42,6 +47,10 @@ def login():
                 }
             })
         
+        # Log failed login attempt
+        log_security_event('failed_login', {'email': email}, 
+                          user_id=str(user.id) if user else None, 
+                          ip_address=ip_address)
         return error_response('Invalid credentials', 401)
     except Exception as e:
         current_app.logger.error(f"Login error: {str(e)}", exc_info=True)
@@ -49,6 +58,7 @@ def login():
         return error_response('Login failed. Please try again.', 500)
 
 @bp.route('/register', methods=['POST'])
+@limiter.limit("100 per hour")  # 100 registrations per hour per IP
 def register():
     """Handle registration form submission"""
     import traceback
@@ -69,6 +79,13 @@ def register():
         if not is_metropolia_email(email):
             return error_response('Registration requires a @metropolia.fi email', 400)
         
+        # Validate password strength
+        is_valid, password_error = validate_password(password)
+        if not is_valid:
+            return error_response(password_error, 400)
+        
+        # Sanitize name input
+        name = sanitize_input(name.strip())
         if not validate_string_length(name, min_length=2, max_length=100):
             return error_response('Name must be between 2 and 100 characters', 400)
         
