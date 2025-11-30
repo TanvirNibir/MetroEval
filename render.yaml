@@ -1,7 +1,7 @@
 services:
   # Backend Service
   - type: web
-    name: metroeval-backend
+    name: MetroEval
     env: python
     region: oregon
     # Using free tier (services sleep after 15 min of inactivity)
