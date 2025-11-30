@@ -1,7 +1,11 @@
 import axios from 'axios'
 
+// Get API URL from environment variable or use relative path for same-domain
+// In production, this should be set to the backend URL
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

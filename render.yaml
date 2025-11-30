@@ -44,7 +44,9 @@ services:
     dockerContext: .
     autoDeployTrigger: commit
     envVars:
+      - key: VITE_API_URL
+        value: https://metroeval-m3gh.onrender.com/api
       - key: REACT_APP_API_URL
-        sync: false
+        value: https://metroeval-m3gh.onrender.com/api
       - key: RENDER_SERVICE_NAME
         value: MetroEval
