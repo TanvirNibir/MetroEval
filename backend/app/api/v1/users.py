@@ -88,7 +88,11 @@ def update_user_profile():
                 current_user.theme_preference = data['theme_preference']
         
         if 'avatar_url' in data:
-            current_user.avatar_url = data['avatar_url']
+            avatar_url = data['avatar_url']
+            # Validate avatar_url length if provided
+            if avatar_url and len(avatar_url) > 10000000:  # 10MB max
+                return error_response('Avatar URL/data is too large. Maximum size is 10MB', 400)
+            current_user.avatar_url = avatar_url
         
         current_user.save()
         
@@ -149,12 +153,18 @@ def upload_avatar():
         file.seek(0, 2)  # SEEK_END
         file_size = file.tell()
         file.seek(0)
-        if file_size > 5 * 1024 * 1024:
-            return error_response('File too large. Maximum size is 5MB', 400)
+        # Reduce max size to 3MB to ensure base64 encoded data fits in MongoDB (3MB -> ~4MB base64)
+        if file_size > 3 * 1024 * 1024:
+            return error_response('File too large. Maximum size is 3MB', 400)
         
         file_data = file.read()
         base64_data = base64.b64encode(file_data).decode('utf-8')
         data_url = f'data:image/{file_ext};base64,{base64_data}'
+        
+        # Validate data URL length before saving (with some safety margin)
+        max_url_length = 10000000  # 10MB
+        if len(data_url) > max_url_length:
+            return error_response(f'Image too large when encoded. Please use a smaller image (max ~3MB original)', 400)
         
         current_user.avatar_url = data_url
         current_user.save()

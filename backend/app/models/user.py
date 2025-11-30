@@ -14,7 +14,7 @@ class User(Document):
     department = StringField(default='General Studies', max_length=100)
     created_at = DateTimeField(default=datetime.utcnow)
     theme_preference = StringField(default='light', max_length=20)  # 'light', 'dark', 'auto'
-    avatar_url = StringField(max_length=200000)  # Allow inline data URLs or remote paths
+    avatar_url = StringField(max_length=10000000)  # Allow inline data URLs (10MB max for base64 encoded images)
     
     def is_authenticated(self):
         return True
