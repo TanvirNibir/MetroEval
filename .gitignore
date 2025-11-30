@@ -27,6 +27,15 @@ instance/
 .DS_Store
 Thumbs.db
 
+# Config files
+*.rc
+*.rc.js
+*ignore
+Dockerfile*
+docker-compose*.yml
+*.toml
+*.ini
+
 # Frontend
 node_modules/
 frontend/node_modules/
