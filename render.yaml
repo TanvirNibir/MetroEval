@@ -5,7 +5,7 @@ services:
     env: python
     region: oregon
     # Using free tier (services sleep after 15 min of inactivity)
-    buildCommand: cd /opt/render/project/src && pip install --upgrade pip && pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install -r $(find . -name requirements.txt -type f | head -1)
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --access-logfile - --error-logfile - backend.app.wsgi:app
     envVars:
       - key: PYTHON_VERSION
