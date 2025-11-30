@@ -13,7 +13,7 @@ services:
     region: frankfurt
     rootDir: .
     buildCommand: pip install --upgrade pip && (pip install -r requirements.txt || pip install -r backend/requirements.txt || pip install Flask==3.0.0 mongoengine==0.27.0 pymongo==4.6.0 Flask-Login==0.6.3 Flask-Limiter==3.5.0 Flask-WTF==1.2.1 Flask-Talisman==1.1.0 Werkzeug==3.0.1 "google-generativeai>=0.3.0" "scikit-learn>=1.4.0" "numpy>=1.26.0" "pandas>=2.1.0" python-dotenv==1.0.0 sentence-transformers==2.2.2 nltk==3.8.1 bleach==6.1.0 "urllib3<2.0" gunicorn)
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --access-logfile - --error-logfile - backend.app.wsgi:app
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile - --capture-output --enable-stdio-inheritance wsgi:app
     autoDeployTrigger: commit
     envVars:
       - key: PYTHON_VERSION
