@@ -42,8 +42,9 @@ This is the easiest way to deploy everything at once.
 
    **For Backend Service:**
    - `MONGODB_URI`: Your MongoDB connection string (from step 1)
-     - Format: `mongodb://username:password@host:port/database?authSource=admin`
-     - Example: `mongodb+srv://user:pass@cluster.mongodb.net/afprs?retryWrites=true&w=majority`
+     - Format: `mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority`
+     - **For your cluster**: `mongodb+srv://tanvirnibir_db_user:YOUR_PASSWORD@cluster0.thxhvub.mongodb.net/afprs?retryWrites=true&w=majority&appName=Cluster0`
+     - Replace `YOUR_PASSWORD` with your actual MongoDB Atlas password
    - `GOOGLE_API_KEY`: Your Google Gemini API key
    - `CORS_ALLOWED_ORIGINS`: Your frontend URL (e.g., `https://metroeval-frontend.onrender.com`)
    - `SECRET_KEY`: Will be auto-generated, but you can set a custom one
@@ -176,6 +177,16 @@ mongodb://username:password@host:port/database?authSource=admin
 ```
 mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
 ```
+
+**Example with your MongoDB Atlas cluster:**
+```
+mongodb+srv://tanvirnibir_db_user:YOUR_ACTUAL_PASSWORD@cluster0.thxhvub.mongodb.net/afprs?retryWrites=true&w=majority&appName=Cluster0
+```
+
+**Important:**
+- Replace `YOUR_ACTUAL_PASSWORD` with your actual database password
+- The database name `afprs` is required (as configured in the application)
+- Make sure to whitelist Render's IP addresses in MongoDB Atlas (or use `0.0.0.0/0` for development)
 
 ## Post-Deployment Checklist
 
