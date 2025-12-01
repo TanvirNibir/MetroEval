@@ -20,8 +20,10 @@ instance/
 .env.local
 
 # OS and editor files
-
+.cursor/
+.github/
 *.swo
+.husky/
 *~
 .DS_Store
 Thumbs.db
