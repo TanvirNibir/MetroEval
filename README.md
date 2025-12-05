@@ -16,6 +16,8 @@
 
 ---
 
+<img src="assets/images/project-image.png" alt="MetroEval Project" width="600" />
+
 </div>
 
 ## 📖 About
