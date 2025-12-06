@@ -20,7 +20,6 @@ instance/
 .env.local
 
 # OS and editor files
-.cursor/
 .github/
 *.swo
 .husky/
