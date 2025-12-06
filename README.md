@@ -265,20 +265,559 @@ npm run dev
 ```
 🌐 Frontend: `http://localhost:3000`
 
-#### Production Deployment
+---
 
-**Backend:**
-```bash
-cd backend
-gunicorn -w 4 -b 0.0.0.0:5001 app.wsgi:app
+## 🚀 Deployment Guide
+
+### 📋 Pre-Deployment Checklist
+
+Before deploying to production, ensure:
+
+- ✅ All environment variables are configured
+- ✅ MongoDB is accessible and secured
+- ✅ Gemini API key is valid and has sufficient quota
+- ✅ SSL/TLS certificates are configured
+- ✅ Domain names are configured
+- ✅ Firewall rules allow necessary ports
+- ✅ Backups are configured
+- ✅ Monitoring and logging are set up
+
+### 🔧 Production Environment Configuration
+
+#### Backend `.env` (Production)
+
+```env
+# Security (CRITICAL: Use strong, unique keys)
+SECRET_KEY=your-production-secret-key-min-32-chars-random
+FLASK_ENV=production
+
+# Database (Use connection string with authentication)
+MONGODB_URI=mongodb://username:password@host:27017/afprs?authSource=admin
+# Or for MongoDB Atlas:
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/afprs?retryWrites=true&w=majority
+
+# AI Configuration
+GEMINI_API_KEY=your-production-gemini-api-key
+
+# Server Configuration
+PORT=5001
+HOST=0.0.0.0
+
+# CORS (Add your production frontend URL)
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+
+# Optional: Logging
+LOG_LEVEL=INFO
 ```
 
-**Frontend:**
+#### Frontend `.env.production`
+
+```env
+VITE_API_URL=https://api.yourdomain.com/api
+```
+
+### 🐍 Backend Deployment
+
+#### Option 1: Gunicorn with Systemd (Recommended for Linux)
+
+**1. Install Gunicorn:**
+```bash
+cd backend
+pip install gunicorn
+```
+
+**2. Create Gunicorn Configuration** (`backend/gunicorn_config.py`):
+```python
+import multiprocessing
+import os
+
+bind = f"0.0.0.0:{os.getenv('PORT', '5001')}"
+workers = multiprocessing.cpu_count() * 2 + 1
+worker_class = "sync"
+worker_connections = 1000
+timeout = 30
+keepalive = 2
+max_requests = 1000
+max_requests_jitter = 50
+preload_app = True
+accesslog = "-"
+errorlog = "-"
+loglevel = "info"
+```
+
+**3. Create Systemd Service** (`/etc/systemd/system/metroeval-backend.service`):
+```ini
+[Unit]
+Description=MetroEval Backend Gunicorn Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/MetroEval/backend
+Environment="PATH=/path/to/MetroEval/backend/venv/bin"
+EnvironmentFile=/path/to/MetroEval/backend/.env
+ExecStart=/path/to/MetroEval/backend/venv/bin/gunicorn \
+    --config gunicorn_config.py \
+    app.wsgi:app
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**4. Enable and Start Service:**
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable metroeval-backend
+sudo systemctl start metroeval-backend
+sudo systemctl status metroeval-backend
+```
+
+#### Option 2: Docker Deployment
+
+**1. Create `backend/Dockerfile`:**
+```dockerfile
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 5001
+
+# Run with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "4", "--timeout", "30", "app.wsgi:app"]
+```
+
+**2. Create `backend/.dockerignore`:**
+```
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+htmlcov/
+.pytest_cache/
+.env
+```
+
+**3. Build and Run:**
+```bash
+cd backend
+docker build -t metroeval-backend .
+docker run -d \
+  --name metroeval-backend \
+  -p 5001:5001 \
+  --env-file .env \
+  metroeval-backend
+```
+
+#### Option 3: Cloud Platform Deployment
+
+**Heroku:**
+```bash
+# Install Heroku CLI
+heroku create metroeval-backend
+heroku config:set SECRET_KEY=your-secret-key
+heroku config:set MONGODB_URI=your-mongodb-uri
+heroku config:set GEMINI_API_KEY=your-api-key
+git push heroku main
+```
+
+**Render:**
+- Connect your GitHub repository
+- Set environment variables in dashboard
+- Use build command: `pip install -r requirements.txt && pip install gunicorn`
+- Use start command: `gunicorn --bind 0.0.0.0:$PORT app.wsgi:app`
+
+**AWS Elastic Beanstalk:**
+- Create `.ebextensions/python.config`:
+```yaml
+option_settings:
+  aws:elasticbeanstalk:container:python:
+    WSGIPath: app.wsgi:application
+```
+
+### ⚛️ Frontend Deployment
+
+#### Option 1: Nginx (Recommended)
+
+**1. Build the Frontend:**
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+**2. Configure Nginx** (`/etc/nginx/sites-available/metroeval`):
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    
+    # Redirect HTTP to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # SSL Configuration
+    ssl_certificate /path/to/ssl/cert.pem;
+    ssl_certificate_key /path/to/ssl/key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Root directory
+    root /path/to/MetroEval/frontend/dist;
+    index index.html;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+    # Serve static files
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Proxy API requests to backend
+    location /api {
+        proxy_pass http://localhost:5001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 75s;
+    }
+}
+```
+
+**3. Enable Site:**
+```bash
+sudo ln -s /etc/nginx/sites-available/metroeval /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+#### Option 2: Docker Deployment
+
+**1. Create `frontend/Dockerfile`:**
+```dockerfile
+# Build stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+**2. Create `frontend/nginx.conf`:**
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://backend:5001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+**3. Build and Run:**
+```bash
+cd frontend
+docker build -t metroeval-frontend .
+docker run -d --name metroeval-frontend -p 80:80 metroeval-frontend
+```
+
+#### Option 3: Cloud Platform Deployment
+
+**Vercel:**
+```bash
+npm install -g vercel
+cd frontend
+vercel --prod
+```
+
+**Netlify:**
+- Connect GitHub repository
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Add environment variable: `VITE_API_URL`
+
+**AWS S3 + CloudFront:**
 ```bash
 cd frontend
 npm run build
-# Serve dist/ with nginx, Apache, or your preferred server
+aws s3 sync dist/ s3://your-bucket-name --delete
+aws cloudfront create-invalidation --distribution-id YOUR_DIST_ID --paths "/*"
 ```
+
+### 🗄️ Database Setup
+
+#### MongoDB Production Configuration
+
+**1. Enable Authentication:**
+```javascript
+use admin
+db.createUser({
+  user: "admin",
+  pwd: "strong-password",
+  roles: ["root"]
+})
+```
+
+**2. Create Application User:**
+```javascript
+use afprs
+db.createUser({
+  user: "metroeval",
+  pwd: "app-password",
+  roles: [{ role: "readWrite", db: "afprs" }]
+})
+```
+
+**3. Enable Replica Set (for production):**
+```yaml
+# mongod.conf
+replication:
+  replSetName: "rs0"
+```
+
+**4. MongoDB Atlas (Cloud):**
+- Create cluster on MongoDB Atlas
+- Whitelist your server IP addresses
+- Get connection string and update `MONGODB_URI`
+
+### 🔒 Security Hardening
+
+**1. Firewall Configuration:**
+```bash
+# Allow only necessary ports
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 80/tcp    # HTTP
+sudo ufw allow 443/tcp   # HTTPS
+sudo ufw enable
+```
+
+**2. SSL/TLS Certificates:**
+```bash
+# Using Let's Encrypt (Certbot)
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+**3. Environment Variables Security:**
+- Never commit `.env` files
+- Use secrets management (AWS Secrets Manager, HashiCorp Vault)
+- Rotate keys regularly
+- Use different keys for dev/staging/production
+
+**4. Application Security:**
+- Enable HTTPS only
+- Set secure cookie flags
+- Implement rate limiting
+- Regular security updates
+- Monitor for vulnerabilities
+
+### 📊 Monitoring & Logging
+
+**1. Application Logs:**
+```bash
+# View backend logs
+sudo journalctl -u metroeval-backend -f
+
+# View nginx logs
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+```
+
+**2. Health Checks:**
+- Backend: `GET /api/v1/health`
+- Monitor response times
+- Set up alerts for downtime
+
+**3. Recommended Tools:**
+- **Monitoring**: Prometheus + Grafana, Datadog, New Relic
+- **Logging**: ELK Stack, CloudWatch, Papertrail
+- **Error Tracking**: Sentry, Rollbar
+
+### 🔄 CI/CD Pipeline
+
+**Example GitHub Actions** (`.github/workflows/deploy.yml`):
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /path/to/MetroEval
+            git pull origin main
+            cd backend
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart metroeval-backend
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Build and Deploy
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          # Deploy to your hosting platform
+```
+
+### 🐳 Docker Compose (Full Stack)
+
+Create `docker-compose.yml` at project root:
+
+```yaml
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: metroeval-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - metroeval-network
+
+  backend:
+    build: ./backend
+    container_name: metroeval-backend
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/afprs?authSource=admin
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongodb
+    networks:
+      - metroeval-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: metroeval-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - metroeval-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  metroeval-network:
+    driver: bridge
+```
+
+**Deploy:**
+```bash
+docker-compose up -d
+```
+
+### 📝 Post-Deployment Checklist
+
+- ✅ Verify all endpoints are accessible
+- ✅ Test authentication flow
+- ✅ Verify database connections
+- ✅ Check SSL certificate validity
+- ✅ Test file uploads
+- ✅ Verify AI service integration
+- ✅ Monitor error logs
+- ✅ Set up automated backups
+- ✅ Configure monitoring alerts
+- ✅ Document deployment process
 
 ---
 
@@ -509,6 +1048,47 @@ All protected endpoints require authentication via **Flask-Login session cookies
 | Password hashing | Security headers | Input sanitization | Version tracking |
 
 </div>
+
+---
+
+## ⚠️ Security Considerations & Known Risks
+
+### Security Risks Identified
+
+The following security issues have been identified and should be addressed:
+
+#### 1. Default SECRET_KEY in Development ✅ **FIXED**
+
+**Previous Risk:** The application used a hardcoded default secret key (`dev-secret-key-change-in-production`) when `SECRET_KEY` environment variable was not set.
+
+**Solution Implemented:** 
+- The application now generates a secure random key using `secrets.token_urlsafe(32)` in development/testing mode if `SECRET_KEY` is not set
+- Production mode still requires `SECRET_KEY` to be explicitly set (raises error if missing)
+- Each development instance gets a unique, cryptographically secure key
+
+**For Production:** Always set a strong, unique `SECRET_KEY` in production. Generate one with:
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+#### 2. Inconsistent Error Logging
+
+**Risk:** Some code uses `print()` statements instead of proper logging, which may expose sensitive information in production logs. There's no centralized logging configuration, so logs might contain sensitive data like user IDs, partial content, or stack traces.
+
+**Fix:** 
+- Implement structured logging with proper log levels
+- Sanitize all log outputs to remove sensitive data
+- Use specific exception types instead of broad `except Exception` catches
+- Configure log rotation and secure log storage
+
+#### 3. Production Configuration
+
+**Risk:** No integration with secrets management systems (AWS Secrets Manager, HashiCorp Vault, etc.) for production deployments.
+
+**Fix:**
+- Use secrets management services for production
+- Rotate keys regularly
+- Use different keys for dev/staging/production environments
 
 ---
 

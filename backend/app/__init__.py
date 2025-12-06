@@ -4,6 +4,7 @@ AI-Powered Feedback & Peer Review System
 Application Factory
 """
 import os
+import secrets
 from flask import Flask
 from flask_login import LoginManager
 import warnings
@@ -33,15 +34,23 @@ def create_app(config_name: str = 'development'):
         static_folder=os.path.join(project_root, 'static')
     )
     
-    # Load configuration
+    # Load configuration - SECRET_KEY handling
     secret_key = os.environ.get('SECRET_KEY')
     if not secret_key:
         if config_name == 'production':
-            raise ValueError("SECRET_KEY environment variable must be set in production")
-        # Use default only in development/testing
-        secret_key = 'dev-secret-key-change-in-production'
+            raise ValueError(
+                "SECRET_KEY environment variable must be set in production. "
+                "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(32))'"
+            )
+        # Generate a secure random key for development/testing
+        # This ensures each development instance has a unique key
+        secret_key = secrets.token_urlsafe(32)
         import warnings
-        warnings.warn("Using default SECRET_KEY. Set SECRET_KEY environment variable in production!")
+        warnings.warn(
+            f"SECRET_KEY not set. Generated a random key for {config_name} mode. "
+            "Set SECRET_KEY environment variable for production deployment!",
+            UserWarning
+        )
     app.config['SECRET_KEY'] = secret_key
     app.config['ENV'] = config_name
     app.config['TESTING'] = config_name == 'testing'
