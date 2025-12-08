@@ -20,7 +20,7 @@ MAX_HISTORY_ENTRY_LENGTH = 1000
 
 @bp.route('/tutor/chat', methods=['POST'])
 @login_required
-@limiter.limit("20 per hour")  # Limit AI tutor requests
+@limiter.exempt  # Unlimited for demo/testing - no rate limits
 def tutor_chat() -> Dict[str, Any]:
     """Handle AI tutor chat messages"""
     try:
@@ -61,13 +61,11 @@ def tutor_chat() -> Dict[str, Any]:
 
         result = ai_service.chat_with_tutor(question=question, context=context, history=sanitized_history)
         if not result or 'response' not in result:
-            current_app.logger.warning("AI tutor returned empty result")
             return error_response('AI tutor was unable to respond. Please try again.', 500)
 
         return success_response({
             'response': result['response']
         })
     except Exception as e:
-        current_app.logger.error(f"Error in tutor chat: {str(e)}", exc_info=True)
         return error_response('Failed to process tutor chat. Please try again.', 500)
 
