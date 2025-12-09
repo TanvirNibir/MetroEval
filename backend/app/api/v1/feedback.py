@@ -23,7 +23,7 @@ def feedback_page() -> Any:
 
 @bp.route('/generate-feedback', methods=['POST'])
 @login_required
-@limiter.exempt  # Unlimited for demo/testing - no rate limits
+@limiter.limit("10 per hour")  # Limit AI feedback generation to prevent abuse
 def generate_feedback() -> Dict[str, Any]:
     """Generate fresh feedback for a submission"""
     try:
@@ -89,6 +89,7 @@ def generate_feedback() -> Dict[str, Any]:
                 # Ensure required IDs exist before calling match_peers
                 peers = []
                 if not submission.user_id or not submission.course_id:
+                    current_app.logger.warning(f"Submission {submission.id} missing user_id or course_id, skipping peer matching")
                 else:
                     peers = peer_matching_service.match_peers(
                         str(submission.id), str(submission.user_id.id),
@@ -126,6 +127,7 @@ def generate_feedback() -> Dict[str, Any]:
                         peers_assigned += 1
             except Exception as e:
                 from flask import current_app
+                current_app.logger.warning(f"Failed to assign peers for submission {submission.id}: {e}")
         
         return success_response({
             'feedback': feedback_text,
@@ -136,4 +138,5 @@ def generate_feedback() -> Dict[str, Any]:
     except ValidationError as e:
         return error_response(e.message, 400, getattr(e, 'errors', None))
     except Exception as e:
+        current_app.logger.error(f"Failed to generate feedback: {str(e)}", exc_info=True)
         return error_response('Failed to generate feedback. Please try again.', 500)
